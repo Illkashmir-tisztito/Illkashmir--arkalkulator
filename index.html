@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illkashmir ÁrKalkulátor</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f5f7;
+    padding: 20px;
+}
+
+.box {
+    max-width: 420px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px #bbb;
+}
+
+h1 {
+    text-align: center;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 10px;
+    font-size: 17px;
+    box-sizing: border-box;
+}
+
+button {
+    background: #198754;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+#eredmeny {
+    margin-top: 25px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<h1>Illkashmir</h1>
+<h2>Szőnyegtisztítás árkalkulátor</h2>
+
+<label>Szőnyeg mérete (m²)</label>
+<input type="number" id="meret" step="0.1" placeholder="pl. 12">
+
+<label>Szolgáltatás</label>
+<select id="szolgaltatas">
+    <option value="18">Behozva az üzembe – 18 RON/m²</option>
+    <option value="20">Mi megyünk érte – 20 RON/m²</option>
+</select>
+
+<button onclick="szamol()">Ár kiszámítása</button>
+
+<div id="eredmeny"></div>
+
+</div>
+
+<script>
+function szamol() {
+    const meret = parseFloat(document.getElementById("meret").value);
+    const ar = parseFloat(document.getElementById("szolgaltatas").value);
+
+    if (!meret || meret <= 0) {
+        document.getElementById("eredmeny").innerHTML =
+        "Add meg a szőnyeg méretét!";
+        return;
+    }
+
+    const osszeg = meret * ar;
+
+    document.getElementById("eredmeny").innerHTML =
+        osszeg.toFixed(2) + " RON";
+}
+</script>
+
+</body>
+</html>
