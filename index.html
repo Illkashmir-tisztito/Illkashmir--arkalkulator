@@ -8,44 +8,75 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #f3f5f7;
+    background: #f4f6f8;
+    margin: 0;
     padding: 20px;
 }
 
 .box {
-    max-width: 420px;
+    max-width: 430px;
     margin: auto;
     background: white;
-    padding: 25px;
-    border-radius: 16px;
-    box-shadow: 0 4px 15px #bbb;
+    padding: 24px;
+    border-radius: 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.15);
 }
 
 h1 {
     text-align: center;
+    margin-bottom: 5px;
+}
+
+h2 {
+    text-align: center;
+    font-size: 20px;
+    margin-top: 0;
+    color: #555;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    font-weight: bold;
 }
 
 input, select, button {
     width: 100%;
     padding: 14px;
-    margin-top: 10px;
+    margin-top: 8px;
     font-size: 17px;
     box-sizing: border-box;
+    border-radius: 9px;
+}
+
+input, select {
+    border: 1px solid #ccc;
 }
 
 button {
+    margin-top: 22px;
     background: #198754;
     color: white;
     border: none;
-    border-radius: 8px;
     font-weight: bold;
+    cursor: pointer;
+}
+
+#meretEredmeny {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 18px;
 }
 
 #eredmeny {
-    margin-top: 25px;
+    margin-top: 18px;
+    padding: 18px;
+    background: #eaf7ef;
+    border-radius: 12px;
     text-align: center;
-    font-size: 28px;
+    font-size: 30px;
     font-weight: bold;
+    color: #146c43;
 }
 </style>
 </head>
@@ -57,8 +88,11 @@ button {
 <h1>Illkashmir</h1>
 <h2>Szőnyegtisztítás árkalkulátor</h2>
 
-<label>Szőnyeg mérete (m²)</label>
-<input type="number" id="meret" step="0.1" placeholder="pl. 12">
+<label>Hosszúság (méter)</label>
+<input type="number" id="hossz" step="0.01" placeholder="pl. 3">
+
+<label>Szélesség (méter)</label>
+<input type="number" id="szelesseg" step="0.01" placeholder="pl. 2.5">
 
 <label>Szolgáltatás</label>
 <select id="szolgaltatas">
@@ -68,22 +102,29 @@ button {
 
 <button onclick="szamol()">Ár kiszámítása</button>
 
+<div id="meretEredmeny"></div>
 <div id="eredmeny"></div>
 
 </div>
 
 <script>
 function szamol() {
-    const meret = parseFloat(document.getElementById("meret").value);
+    const hossz = parseFloat(document.getElementById("hossz").value);
+    const szelesseg = parseFloat(document.getElementById("szelesseg").value);
     const ar = parseFloat(document.getElementById("szolgaltatas").value);
 
-    if (!meret || meret <= 0) {
-        document.getElementById("eredmeny").innerHTML =
-        "Add meg a szőnyeg méretét!";
+    if (!hossz || !szelesseg || hossz <= 0 || szelesseg <= 0) {
+        document.getElementById("meretEredmeny").innerHTML =
+        "Add meg a szőnyeg hosszát és szélességét!";
+        document.getElementById("eredmeny").innerHTML = "";
         return;
     }
 
-    const osszeg = meret * ar;
+    const nm = hossz * szelesseg;
+    const osszeg = nm * ar;
+
+    document.getElementById("meretEredmeny").innerHTML =
+        "Méret: " + nm.toFixed(2) + " m²";
 
     document.getElementById("eredmeny").innerHTML =
         osszeg.toFixed(2) + " RON";
