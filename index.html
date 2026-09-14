@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="hu">
 <head>
@@ -44,7 +43,6 @@ label {
     display: block;
     margin-top: 18px;
     font-weight: bold;
-    color: #062f55;
 }
 
 input, select, button {
@@ -66,29 +64,73 @@ input:focus, select:focus {
     border-color: #8fbe00;
 }
 
+.szonyeg {
+    margin-top: 18px;
+    padding: 16px;
+    background: #f8fafb;
+    border: 1px solid #d7dde1;
+    border-radius: 12px;
+}
+
+.szonyeg-cim {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.sor {
+    display: flex;
+    gap: 10px;
+}
+
+.sor > div {
+    flex: 1;
+}
+
 button {
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.fo-gomb {
     margin-top: 24px;
     background: #8fbe00;
     color: #062f55;
-    border: none;
-    font-weight: bold;
     font-size: 18px;
-    cursor: pointer;
+}
+
+.hozzaad {
+    margin-top: 18px;
+    background: #062f55;
+    color: white;
+    font-size: 16px;
+}
+
+.torol {
+    margin-top: 12px;
+    background: #e9ecef;
+    color: #444;
+    font-size: 14px;
+    padding: 10px;
 }
 
 button:active {
     transform: scale(0.98);
 }
 
-#meretEredmeny {
-    text-align: center;
+#eredmenyDoboz {
+    display: none;
     margin-top: 20px;
+}
+
+#osszesMeret {
+    text-align: center;
     font-size: 18px;
-    color: #062f55;
+    margin-bottom: 10px;
 }
 
 #eredmeny {
-    margin-top: 15px;
     padding: 18px;
     background: #f1f8df;
     border: 2px solid #8fbe00;
@@ -119,11 +161,27 @@ class="logo">
 
 <h2>Szőnyegtisztítás árkalkulátor</h2>
 
-<label>Hosszúság (méter)</label>
-<input type="number" id="hossz" step="0.01" placeholder="pl. 3">
+<div id="szonyegek">
 
-<label>Szélesség (méter)</label>
-<input type="number" id="szelesseg" step="0.01" placeholder="pl. 2.5">
+    <div class="szonyeg">
+        <div class="szonyeg-cim">1. szőnyeg</div>
+
+        <div class="sor">
+            <div>
+                <label>Hosszúság (m)</label>
+                <input type="number" class="hossz" step="0.01" placeholder="pl. 3">
+            </div>
+
+            <div>
+                <label>Szélesség (m)</label>
+                <input type="number" class="szelesseg" step="0.01" placeholder="pl. 2.5">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<button class="hozzaad" onclick="ujSzonyeget()">+ Új szőnyeg hozzáadása</button>
 
 <label>Szolgáltatás</label>
 <select id="szolgaltatas">
@@ -131,10 +189,12 @@ class="logo">
     <option value="20">Mi megyünk érte – 20 RON/m²</option>
 </select>
 
-<button onclick="szamol()">Ár kiszámítása</button>
+<button class="fo-gomb" onclick="szamol()">Ár kiszámítása</button>
 
-<div id="meretEredmeny"></div>
-<div id="eredmeny"></div>
+<div id="eredmenyDoboz">
+    <div id="osszesMeret"></div>
+    <div id="eredmeny"></div>
+</div>
 
 <div class="info">
 Az ár tájékoztató jellegű.
@@ -143,26 +203,84 @@ Az ár tájékoztató jellegű.
 </div>
 
 <script>
+let szonyegSzam = 1;
+
+function ujSzonyeget() {
+    szonyegSzam++;
+
+    const uj = document.createElement("div");
+    uj.className = "szonyeg";
+
+    uj.innerHTML = `
+        <div class="szonyeg-cim">${szonyegSzam}. szőnyeg</div>
+
+        <div class="sor">
+            <div>
+                <label>Hosszúság (m)</label>
+                <input type="number" class="hossz" step="0.01" placeholder="pl. 3">
+            </div>
+
+            <div>
+                <label>Szélesség (m)</label>
+                <input type="number" class="szelesseg" step="0.01" placeholder="pl. 2.5">
+            </div>
+        </div>
+
+        <button class="torol" onclick="this.parentElement.remove(); frissitSzamok();">
+            Szőnyeg törlése
+        </button>
+    `;
+
+    document.getElementById("szonyegek").appendChild(uj);
+
+    frissitSzamok();
+}
+
+function frissitSzamok() {
+    const szonyegek = document.querySelectorAll(".szonyeg");
+
+    szonyegek.forEach((szonyeg, index) => {
+        szonyeg.querySelector(".szonyeg-cim").innerText =
+            (index + 1) + ". szőnyeg";
+    });
+
+    szonyegSzam = szonyegek.length;
+}
+
 function szamol() {
-    const hossz = parseFloat(document.getElementById("hossz").value);
-    const szelesseg = parseFloat(document.getElementById("szelesseg").value);
+    const hosszak = document.querySelectorAll(".hossz");
+    const szelessegek = document.querySelectorAll(".szelesseg");
     const ar = parseFloat(document.getElementById("szolgaltatas").value);
 
-    if (!hossz || !szelesseg || hossz <= 0 || szelesseg <= 0) {
-        document.getElementById("meretEredmeny").innerHTML =
-        "Add meg a szőnyeg hosszát és szélességét!";
-        document.getElementById("eredmeny").innerHTML = "";
+    let osszesNm = 0;
+    let vanHibas = false;
+
+    for (let i = 0; i < hosszak.length; i++) {
+        const hossz = parseFloat(hosszak[i].value);
+        const szelesseg = parseFloat(szelessegek[i].value);
+
+        if (!hossz || !szelesseg || hossz <= 0 || szelesseg <= 0) {
+            vanHibas = true;
+            break;
+        }
+
+        osszesNm += hossz * szelesseg;
+    }
+
+    if (vanHibas) {
+        alert("Add meg minden szőnyeg hosszát és szélességét!");
         return;
     }
 
-    const nm = hossz * szelesseg;
-    const osszeg = nm * ar;
+    const osszeg = osszesNm * ar;
 
-    document.getElementById("meretEredmeny").innerHTML =
-        "Méret: <strong>" + nm.toFixed(2) + " m²</strong>";
+    document.getElementById("osszesMeret").innerHTML =
+        "Összes méret: <strong>" + osszesNm.toFixed(2) + " m²</strong>";
 
     document.getElementById("eredmeny").innerHTML =
         osszeg.toFixed(2) + " RON";
+
+    document.getElementById("eredmenyDoboz").style.display = "block";
 }
 </script>
 
