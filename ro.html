@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Illkashmir – Calculator de preț</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f3f5f6;
+    margin: 0;
+    padding: 20px;
+    color: #062f55;
+}
+
+.box {
+    max-width: 430px;
+    margin: auto;
+    background: white;
+    padding: 24px;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.14);
+    border-top: 6px solid #8fbe00;
+}
+
+.logo {
+    display: block;
+    width: 100%;
+    max-width: 330px;
+    height: auto;
+    margin: 0 auto 10px auto;
+}
+
+h2 {
+    text-align: center;
+    font-size: 21px;
+    margin: 5px 0 25px;
+    color: #062f55;
+}
+
+label {
+    display: block;
+    margin-top: 18px;
+    font-weight: bold;
+}
+
+input, select, button {
+    width: 100%;
+    padding: 14px;
+    margin-top: 8px;
+    font-size: 17px;
+    box-sizing: border-box;
+    border-radius: 10px;
+}
+
+input, select {
+    border: 1px solid #b9c3ca;
+    background: white;
+}
+
+input:focus, select:focus {
+    outline: 2px solid #8fbe00;
+    border-color: #8fbe00;
+}
+
+.szonyeg {
+    margin-top: 18px;
+    padding: 16px;
+    background: #f8fafb;
+    border: 1px solid #d7dde1;
+    border-radius: 12px;
+}
+
+.szonyeg-cim {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 6px;
+}
+
+.sor {
+    display: flex;
+    gap: 10px;
+}
+
+.sor > div {
+    flex: 1;
+}
+
+button {
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.fo-gomb {
+    margin-top: 24px;
+    background: #8fbe00;
+    color: #062f55;
+    font-size: 18px;
+}
+
+.hozzaad {
+    margin-top: 18px;
+    background: #062f55;
+    color: white;
+    font-size: 16px;
+}
+
+.torol {
+    margin-top: 12px;
+    background: #e9ecef;
+    color: #444;
+    font-size: 14px;
+    padding: 10px;
+}
+
+button:active {
+    transform: scale(0.98);
+}
+
+#eredmenyDoboz {
+    display: none;
+    margin-top: 20px;
+}
+
+#osszesMeret {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 10px;
+}
+
+#eredmeny {
+    padding: 18px;
+    background: #f1f8df;
+    border: 2px solid #8fbe00;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 30px;
+    font-weight: bold;
+    color: #062f55;
+}
+
+.info {
+    text-align: center;
+    font-size: 13px;
+    color: #6b747b;
+    margin-top: 22px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="box">
+
+<img
+src="file_00000000863881f4b494679524093f2e.png"
+alt="Illkashmir"
+class="logo">
+
+<h2>Calculator preț curățare covoare</h2>
+
+<div id="szonyegek">
+
+    <div class="szonyeg">
+        <div class="szonyeg-cim">Covorul 1</div>
+
+        <div class="sor">
+            <div>
+                <label>Lungime (m)</label>
+                <input type="number" class="hossz" step="0.01" placeholder="ex. 3">
+            </div>
+
+            <div>
+                <label>Lățime (m)</label>
+                <input type="number" class="szelesseg" step="0.01" placeholder="ex. 2,5">
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<button class="hozzaad" onclick="ujSzonyeget()">+ Adaugă un covor</button>
+
+<label>Serviciu</label>
+<select id="szolgaltatas">
+    <option value="18">Predare la punctul de lucru – 18 RON/m²</option>
+    <option value="20">Ridicare de la domiciliu – 20 RON/m²</option>
+</select>
+
+<button class="fo-gomb" onclick="szamol()">Calculează prețul</button>
+
+<div id="eredmenyDoboz">
+    <div id="osszesMeret"></div>
+    <div id="eredmeny"></div>
+</div>
+
+<div class="info">
+Prețul afișat este orientativ.
+</div>
+
+</div>
+
+<script>
+let szonyegSzam = 1;
+
+function ujSzonyeget() {
+    szonyegSzam++;
+
+    const uj = document.createElement("div");
+    uj.className = "szonyeg";
+
+    uj.innerHTML = `
+        <div class="szonyeg-cim">Covorul ${szonyegSzam}</div>
+
+        <div class="sor">
+            <div>
+                <label>Lungime (m)</label>
+                <input type="number" class="hossz" step="0.01" placeholder="ex. 3">
+            </div>
+
+            <div>
+                <label>Lățime (m)</label>
+                <input type="number" class="szelesseg" step="0.01" placeholder="ex. 2,5">
+            </div>
+        </div>
+
+        <button class="torol" onclick="this.parentElement.remove(); frissitSzamok();">
+            Șterge covorul
+        </button>
+    `;
+
+    document.getElementById("szonyegek").appendChild(uj);
+
+    frissitSzamok();
+}
+
+function frissitSzamok() {
+    const szonyegek = document.querySelectorAll(".szonyeg");
+
+    szonyegek.forEach((szonyeg, index) => {
+        szonyeg.querySelector(".szonyeg-cim").innerText =
+            "Covorul " + (index + 1);
+    });
+
+    szonyegSzam = szonyegek.length;
+}
+
+function szamol() {
+    const hosszak = document.querySelectorAll(".hossz");
+    const szelessegek = document.querySelectorAll(".szelesseg");
+    const ar = parseFloat(document.getElementById("szolgaltatas").value);
+
+    let osszesNm = 0;
+    let vanHibas = false;
+
+    for (let i = 0; i < hosszak.length; i++) {
+        const hossz = parseFloat(hosszak[i].value);
+        const szelesseg = parseFloat(szelessegek[i].value);
+
+        if (!hossz || !szelesseg || hossz <= 0 || szelesseg <= 0) {
+            vanHibas = true;
+            break;
+        }
+
+        osszesNm += hossz * szelesseg;
+    }
+
+    if (vanHibas) {
+        alert("Introduceți lungimea și lățimea fiecărui covor!");
+        return;
+    }
+
+    const osszeg = osszesNm * ar;
+
+    document.getElementById("osszesMeret").innerHTML =
+        "Suprafață totală: <strong>" + osszesNm.toFixed(2) + " m²</strong>";
+
+    document.getElementById("eredmeny").innerHTML =
+        osszeg.toFixed(2) + " RON";
+
+    document.getElementById("eredmenyDoboz").style.display = "block";
+}
+</script>
+
+</body>
+</html>
